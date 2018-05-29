@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.button1 = new System.Windows.Forms.Button();
+            this.txtDimensao = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // button1
@@ -41,21 +42,31 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
+            // txtDimensao
+            // 
+            this.txtDimensao.Location = new System.Drawing.Point(51, 117);
+            this.txtDimensao.Name = "txtDimensao";
+            this.txtDimensao.Size = new System.Drawing.Size(148, 20);
+            this.txtDimensao.TabIndex = 1;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(254, 115);
+            this.ClientSize = new System.Drawing.Size(258, 213);
+            this.Controls.Add(this.txtDimensao);
             this.Controls.Add(this.button1);
             this.Name = "Form1";
             this.Text = "Form1";
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
 
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.TextBox txtDimensao;
     }
 }
 

@@ -13,8 +13,11 @@ namespace Configurador
     {
         SldWorks.SldWorks swApp;
         ModelDoc2 swModel;
+        AssemblyDoc swAssembly;
         ModelDocExtension swExt;
         CustomPropertyManager swCustomMgr;
+        Dimension myDimension;
+
 
         // Construtor da classe
         public Form1()
@@ -35,20 +38,60 @@ namespace Configurador
             }
 
             swModel = (ModelDoc2)swApp.ActiveDoc;
+            swExt = swModel.Extension;
 
             if (swModel == null)
             {
                 MessageBox.Show("Não há documento aberto");
             }
 
-            //swApp.SendMsgToUser("Conectado");
+            // swApp.SendMsgToUser("Conectado");
+            // InserirPropriedade();
+            // LerArquivo();
 
+            // Chama o método passando o valor da dimensao.
+            // AlterarDimensao(Convert.ToDouble(txtDimensao.Text));
+
+            //SalvarPDF();
+
+            swAssembly = (AssemblyDoc)swModel;
+
+            swAssembly.ReplaceComponents(@"C:\ELETROFRIO\ENGENHARIA SMR\NOVA ESTRUTURA\RACK 1\02_CAD\tq liq.sldprt",
+                "", true, true);
+        }
+
+        private void SalvarPDF()
+        {
+            string nome = Path.GetFileNameWithoutExtension(swModel.GetPathName()); // Pega o nome sem extensão do full path do nome original com extensão.
+            int Error = 0;
+            int Warnings = 0;
+            bool bRet;
+            bRet = swExt.SaveAs($@"C:\Users\54808\Documents\{nome}.PDF", (int)swSaveAsVersion_e.swSaveAsCurrentVersion,
+                (int)swSaveAsOptions_e.swSaveAsOptions_Silent, null, ref Error, ref Warnings);
+            
+                // Converte um enum do tipo int para a string do enum deixando mais claro o erro
+                // pois será retornada um msg e não um int.
+                swFileSaveError_e e = (swFileSaveError_e)Error;
+                MessageBox.Show(e.ToString());
+        }
+
+        private void AlterarDimensao(double dimensao)
+        {
+            myDimension = swModel.Parameter("comprimento@comprimento@Part1.Part");
+            myDimension.SystemValue = dimensao / 1000; // Converte pra metros.
+            swModel.EditRebuild3();
+        }
+
+        private void InserirPropriedade()
+        {
             swExt = swModel.Extension;
             swCustomMgr = swExt.CustomPropertyManager[""];
             swCustomMgr.Add3("Descrição", (int)swCustomInfoType_e.swCustomInfoText, "Grade ventilador ZA",
                 (int)swCustomPropertyAddOption_e.swCustomPropertyReplaceValue);
+        }
 
-
+        private void LerArquivo()
+        {
             try
             {
                 // O using é equivalente a um try finally que chama um Dispose
