@@ -2,17 +2,18 @@
 {
     public class Coletor
     {
-        public string codigoColetor { get; set; }
-        public string descricaoColetor { get; set; }
-        public string quantidadeCompressor { get; set; }
-        public string diametroTuboAcoColetor { get; set; }
-        public string codigoTuboAcoColetor { get; set; }
-        public string quantidadeRamalRack { get; set; }
-        public string diametroSuccaoRack { get; set; }
-        public string codigoBolsaSoldaSuccaoRack { get; set; }
-        public string diametroEncaixeSuccaoRack { get; set; }
-        public string diametroSuccaoCompressor { get; set; }
-        public string codigoBolsaSoldaSuccaoCompressor { get; set; }
-        public string diametroEncaixeSuccaoCompressor { get; set; }        
+        public string CodigoColetor { get; set; }
+        public string DescricaoColetor { get; set; }
+        public string QuantidadeCompressor { get; set; }
+        public string DiametroTuboAcoColetor { get; set; }
+        public string CodigoTuboAcoColetor { get; set; }
+        public string QuantidadeRamalRack { get; set; }
+        public string DiametroSuccaoRack { get; set; }
+        public string CodigoBolsaSoldaSuccaoRack { get; set; }
+        public string DiametroEncaixeSuccaoRack { get; set; }
+        public string DiametroSuccaoCompressor { get; set; }
+        public string CodigoBolsaSoldaSuccaoCompressor { get; set; }
+        public string DiametroEncaixeSuccaoCompressor { get; set; }
+        public string ArquivoColetorTemplate{ get; set; }
     }
 }

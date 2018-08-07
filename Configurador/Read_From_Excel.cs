@@ -33,18 +33,20 @@ namespace LerExcel
             for (i = 2; i <= rowCount; i++)
             {
                 var c = new Coletor();
-                c.codigoColetor = xlRange.Cells[i, 1].Value2.ToString();
-                c.descricaoColetor = xlRange.Cells[i, 2].Value2.ToString();
-                c.quantidadeCompressor = xlRange.Cells[i, 3].Value2.ToString();
-                c.diametroTuboAcoColetor = xlRange.Cells[i, 4].Value2.ToString();
-                c.codigoTuboAcoColetor = xlRange.Cells[i, 5].Value2.ToString();
-                c.quantidadeRamalRack = xlRange.Cells[i, 6].Value2.ToString();
-                c.diametroSuccaoRack = xlRange.Cells[i, 7].Value2.ToString();
-                c.codigoBolsaSoldaSuccaoRack = xlRange.Cells[i, 8].Value2.ToString();
-                c.diametroEncaixeSuccaoRack = xlRange.Cells[i, 9].Value2.ToString();
-                c.diametroSuccaoCompressor = xlRange.Cells[i, 10].Value2.ToString();
-                c.codigoBolsaSoldaSuccaoCompressor = xlRange.Cells[i, 11].Value2.ToString();
-                c.diametroEncaixeSuccaoCompressor = xlRange.Cells[i, 12].Value2.ToString();
+                c.CodigoColetor = xlRange.Cells[i, 1].Value2.ToString();
+                c.DescricaoColetor = xlRange.Cells[i, 2].Value2.ToString();
+                c.QuantidadeCompressor = xlRange.Cells[i, 3].Value2.ToString();
+                c.DiametroTuboAcoColetor = xlRange.Cells[i, 4].Value2.ToString();
+                c.CodigoTuboAcoColetor = xlRange.Cells[i, 5].Value2.ToString();
+                c.QuantidadeRamalRack = xlRange.Cells[i, 6].Value2.ToString();
+                c.DiametroSuccaoRack = xlRange.Cells[i, 7].Value2.ToString();
+                c.CodigoBolsaSoldaSuccaoRack = xlRange.Cells[i, 8].Value2.ToString();
+                c.DiametroEncaixeSuccaoRack = xlRange.Cells[i, 9].Value2.ToString();
+                c.DiametroSuccaoCompressor = xlRange.Cells[i, 10].Value2.ToString();
+                c.CodigoBolsaSoldaSuccaoCompressor = xlRange.Cells[i, 11].Value2.ToString();
+                c.DiametroEncaixeSuccaoCompressor = xlRange.Cells[i, 12].Value2.ToString();
+                c.ArquivoColetorTemplate= xlRange.Cells[i, 13].Value2.ToString();
+
                 AddColetor(c);
             }
 

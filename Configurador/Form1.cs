@@ -9,7 +9,6 @@ using LerExcel;
 
 namespace Configurador
 {
-
     public partial class Form1 : Form
     {
         SldWorks.SldWorks swApp;
@@ -54,29 +53,39 @@ namespace Configurador
 
             // O metodo retorna uma lista de coletores
             List<Coletor> coletores = excel.getColetores();
-            
-            
+
             // Converto a Lista retornada para array para acessar pelo indice.
             Array c = (coletores.ToArray());
 
-            Coletor coletorZero = (Coletor)c.GetValue(0);
+            //Coletor coletorZero = (Coletor)c.GetValue(0);
 
-
-            string msg = "";
-            foreach (Coletor coletor in coletores)
-            {                
-                msg += coletor.codigoColetor + "\n";
-            }
+            //string msg = "";
+            //foreach (Coletor coletor in coletores)
+            //{                
+            //    msg += coletor.codigoColetor + "\n";
+            //}
             //MessageBox.Show(msg);
 
-            //DataGrid dg = new DataGrid();
-            //dg.DataSource = coletores;
-            dataGridView1.DataSource = coletores;
-            
+            for (int i = 0; i < c.Length; i++)
+            {
+                Coletor coletor = (Coletor)c.GetValue(i);
+                string qtCP = coletor.QuantidadeCompressor;
+
+                OpenColetorTemplate(coletor);
+            }
 
             //Replace(swModel);
             swModel.EditRebuild3();
 
+        }
+
+        private void OpenColetorTemplate(Coletor c)
+        {
+            int errors = 0;
+            int warnings = 0;
+
+            swApp.OpenDoc6(c.ArquivoColetorTemplate, (int)swDocumentTypes_e.swDocASSEMBLY,
+                (int)swOpenDocOptions_e.swOpenDocOptions_ReadOnly, "", (int)errors, (int)warnings);
         }
 
         private void Replace(ModelDoc2 swModel)
