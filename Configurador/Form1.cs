@@ -1,22 +1,27 @@
 ﻿using SldWorks;
 using SwConst;
-using SwCommands;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using System.IO;
-using System.Collections.Generic;
+using LerExcel;
 
 namespace Configurador
 {
+
     public partial class Form1 : Form
     {
         SldWorks.SldWorks swApp;
         ModelDoc2 swModel;
+        PartDoc swPart;
         AssemblyDoc swAssembly;
         ModelDocExtension swExt;
         CustomPropertyManager swCustomMgr;
         Dimension myDimension;
+        SheetMetalFeatureData sMetal;
+        Feature feature;
+        Feature swSubFeature;
 
 
         // Construtor da classe
@@ -34,30 +39,52 @@ namespace Configurador
             catch
             {
                 MessageBox.Show("Erro ao conectar no Solidworks");
-                //return;
+                return;
             }
 
             swModel = (ModelDoc2)swApp.ActiveDoc;
-            swExt = swModel.Extension;
-
             if (swModel == null)
             {
                 MessageBox.Show("Não há documento aberto");
             }
 
-            // swApp.SendMsgToUser("Conectado");
-            // InserirPropriedade();
-            // LerArquivo();
+            swExt = swModel.Extension;
 
-            // Chama o método passando o valor da dimensao.
-            // AlterarDimensao(Convert.ToDouble(txtDimensao.Text));
+            var excel = new Read_From_Excel();
 
-            //SalvarPDF();
+            // O metodo retorna uma lista de coletores
+            List<Coletor> coletores = excel.getColetores();
+            
+            
+            // Converto a Lista retornada para array para acessar pelo indice.
+            Array c = (coletores.ToArray());
 
+            Coletor coletorZero = (Coletor)c.GetValue(0);
+
+
+            string msg = "";
+            foreach (Coletor coletor in coletores)
+            {                
+                msg += coletor.codigoColetor + "\n";
+            }
+            //MessageBox.Show(msg);
+
+            //DataGrid dg = new DataGrid();
+            //dg.DataSource = coletores;
+            dataGridView1.DataSource = coletores;
+            
+
+            //Replace(swModel);
+            swModel.EditRebuild3();
+
+        }
+
+        private void Replace(ModelDoc2 swModel)
+        {
             swAssembly = (AssemblyDoc)swModel;
 
-            swAssembly.ReplaceComponents(@"C:\ELETROFRIO\ENGENHARIA SMR\NOVA ESTRUTURA\RACK 1\02_CAD\tq liq.sldprt",
-                "", true, true);
+            swAssembly.ReplaceComponents(@"C:\ELETROFRIO\ENGENHARIA SMR\PRODUTOS FINAIS ELETROFRIO\MECÂNICA\RACK PADRAO\CONEXOES\2047907.SLDPRT",
+            "", true, true);
         }
 
         private void SalvarPDF()
@@ -68,11 +95,11 @@ namespace Configurador
             bool bRet;
             bRet = swExt.SaveAs($@"C:\Users\54808\Documents\{nome}.PDF", (int)swSaveAsVersion_e.swSaveAsCurrentVersion,
                 (int)swSaveAsOptions_e.swSaveAsOptions_Silent, null, ref Error, ref Warnings);
-            
-                // Converte um enum do tipo int para a string do enum deixando mais claro o erro
-                // pois será retornada um msg e não um int.
-                swFileSaveError_e e = (swFileSaveError_e)Error;
-                MessageBox.Show(e.ToString());
+
+            // Converte um enum do tipo int para a string do enum deixando mais claro o erro
+            // pois será retornada um msg e não um int.
+            swFileSaveError_e e = (swFileSaveError_e)Error;
+            MessageBox.Show(e.ToString());
         }
 
         private void AlterarDimensao(double dimensao)
