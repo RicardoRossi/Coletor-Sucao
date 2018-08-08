@@ -29,7 +29,6 @@ namespace LerExcel
             //iterate over the rows and columns and print to the console as it appears in the file
             //excel is not zero based!!
             int i = 0;
-            int j = 0;
             for (i = 2; i <= rowCount; i++)
             {
                 var c = new Coletor();

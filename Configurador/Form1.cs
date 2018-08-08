@@ -41,14 +41,6 @@ namespace Configurador
                 return;
             }
 
-            swModel = (ModelDoc2)swApp.ActiveDoc;
-            if (swModel == null)
-            {
-                MessageBox.Show("Não há documento aberto");
-            }
-
-            swExt = swModel.Extension;
-
             var excel = new Read_From_Excel();
 
             // O metodo retorna uma lista de coletores
@@ -57,14 +49,7 @@ namespace Configurador
             // Converto a Lista retornada para array para acessar pelo indice.
             Array c = (coletores.ToArray());
 
-            //Coletor coletorZero = (Coletor)c.GetValue(0);
-
-            //string msg = "";
-            //foreach (Coletor coletor in coletores)
-            //{                
-            //    msg += coletor.codigoColetor + "\n";
-            //}
-            //MessageBox.Show(msg);
+            //swApp.DocumentVisible(false, (int)swDocumentTypes_e.swDocNONE);
 
             for (int i = 0; i < c.Length; i++)
             {
@@ -72,11 +57,80 @@ namespace Configurador
                 string qtCP = coletor.QuantidadeCompressor;
 
                 OpenColetorTemplate(coletor);
+
+                SaveAs2d(coletor);
+
+                swApp.ActivateDoc(Path.ChangeExtension(swModel.GetTitle(), ".SLDDRW"));
+
+                swModel = swApp.ActiveDoc;
+                swModel.Save();
+
+                swApp.CloseAllDocuments(true);
+
             }
 
             //Replace(swModel);
-            swModel.EditRebuild3();
+            //swModel.EditRebuild3();
+        }
 
+        private void SaveAs2d(Coletor coletor)
+        {
+            string codigo = coletor.CodigoColetor;
+            string caminhoSalvar = @"C:\Users\54808\Documents\1 - Docs Ricardo\Rack padrao\COLETOR SUCCAO\";
+            string nomeCompletoArquivo2d = caminhoSalvar + codigo + ".SLDDRW";
+            int error = 0;
+            int warning = 0;
+            swModel = swApp.ActiveDoc;
+            swExt = swModel.Extension;
+            int retVal = swModel.SaveAs3(nomeCompletoArquivo2d, 0, 0);
+
+            // Abre o arquivo para trocar a referencia do coletor
+            swApp.OpenDoc6(nomeCompletoArquivo2d, (int)swDocumentTypes_e.swDocDRAWING,
+              (int)swOpenDocOptions_e.swOpenDocOptions_LoadModel, "", (int)error, (int)warning);
+
+            swModel = swApp.ActiveDoc;
+            SaveAs3d(coletor);
+            swApp.ActivateDoc(Path.GetFileName(coletor.ArquivoColetorTemplate));
+        }
+
+        private void SaveAs3d(Coletor coletor)
+        {
+            string codigo = coletor.CodigoColetor;
+            string caminhoSalvar = @"C:\Users\54808\Documents\1 - Docs Ricardo\Rack padrao\COLETOR SUCCAO\";
+            string nomeCompletoArquivo3d = caminhoSalvar + codigo + ".SLDASM";
+            swModel = swApp.ActiveDoc;
+            swExt = swModel.Extension;
+            swApp.ActivateDoc(Path.GetFileName(coletor.ArquivoColetorTemplate));
+            swModel = swApp.ActiveDoc;
+            int retVal = swModel.SaveAs3(nomeCompletoArquivo3d, 0, 0);
+
+            Replace(coletor);
+        }
+
+        private void Replace(Coletor coletor)
+        {
+            swModel = swApp.ActiveDoc;
+            AssemblyDoc swAssembly = (AssemblyDoc)swModel;
+            Object[] components = swAssembly.GetComponents(true);
+
+            foreach (var componente in components)
+            {
+                Component2 component = (Component2)componente;
+
+                swModel = component.GetModelDoc2();
+                string nomeDoComponente = swModel.GetTitle();
+
+                if (String.Equals(nomeDoComponente, "BOLSA SOLDA SUCCAO RACK TEMPLATE.SLDPRT"))
+                {
+                    component.Select(true);
+                }
+            }
+
+            swAssembly.ReplaceComponents(@"C:\Users\54808\Documents\1 - Docs Ricardo\Rack padrao\COLETOR SUCCAO TEMPLATE\2047899.SLDPRT",
+                "", true, true);
+
+            swModel = swApp.ActiveDoc;
+            swModel.Save();
         }
 
         private void OpenColetorTemplate(Coletor c)
@@ -84,9 +138,19 @@ namespace Configurador
             int errors = 0;
             int warnings = 0;
 
+            // Abre o assembly do coletor
             swApp.OpenDoc6(c.ArquivoColetorTemplate, (int)swDocumentTypes_e.swDocASSEMBLY,
-                (int)swOpenDocOptions_e.swOpenDocOptions_ReadOnly, "", (int)errors, (int)warnings);
+                (int)swOpenDocOptions_e.swOpenDocOptions_LoadModel, "", (int)errors, (int)warnings);
+
+            // Converte o path de sldasm para slddrw
+            string path2d = c.ArquivoColetorTemplate.Replace("SLDASM", "SLDDRW");
+
+            // Abre o 2d do coletor
+            swApp.OpenDoc6(path2d, (int)swDocumentTypes_e.swDocDRAWING,
+               (int)swOpenDocOptions_e.swOpenDocOptions_LoadModel, "", (int)errors, (int)warnings);
         }
+
+
 
         private void Replace(ModelDoc2 swModel)
         {
