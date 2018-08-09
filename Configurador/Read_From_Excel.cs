@@ -44,7 +44,8 @@ namespace LerExcel
                 c.DiametroSuccaoCompressor = xlRange.Cells[i, 10].Value2.ToString();
                 c.CodigoBolsaSoldaSuccaoCompressor = xlRange.Cells[i, 11].Value2.ToString();
                 c.DiametroEncaixeSuccaoCompressor = xlRange.Cells[i, 12].Value2.ToString();
-                c.ArquivoColetorTemplate= xlRange.Cells[i, 13].Value2.ToString();
+                c.ArquivoTemplateDoColetor = xlRange.Cells[i, 13].Value2.ToString();
+                c.ArquivoTemplateTuboDoColetor = xlRange.Cells[i, 14].Value2.ToString();
 
                 AddColetor(c);
             }

@@ -21,7 +21,7 @@ namespace Configurador
         SheetMetalFeatureData sMetal;
         Feature feature;
         Feature swSubFeature;
-
+        ModelView mView;
 
         // Construtor da classe
         public Form1()
@@ -41,6 +41,7 @@ namespace Configurador
                 return;
             }
 
+           
             var excel = new Read_From_Excel();
 
             // O metodo retorna uma lista de coletores
@@ -60,10 +61,25 @@ namespace Configurador
 
                 SaveAs2d(coletor);
 
-                swApp.ActivateDoc(Path.ChangeExtension(swModel.GetTitle(), ".SLDDRW"));
+                // Salva o 3D e troca referencia no novo 2d
+                SaveAs3d(coletor);
 
+                // Replace ramal do rack
+                ReplaceBolsaRack(coletor);
+
+                // Replace ramal compressor.
+                ReplaceBolsaCP(coletor);
+
+                SaveAsTubo(coletor);
+
+                // Salva o 2D final
+                swApp.ActivateDoc(coletor.CodigoColetor + ".SLDDRW");
                 swModel = swApp.ActiveDoc;
-                swModel.Save();
+
+                int error = 0;
+                int warnings = 0;
+                swModel.Save3((int)swSaveAsOptions_e.swSaveAsOptions_SaveReferenced + (int)swSaveAsOptions_e.swSaveAsOptions_Silent,
+                    ref error, ref warnings);
 
                 swApp.CloseAllDocuments(true);
 
@@ -71,6 +87,8 @@ namespace Configurador
 
             //Replace(swModel);
             //swModel.EditRebuild3();
+
+            //mView.EnableGraphicsUpdate = true;
         }
 
         private void SaveAs2d(Coletor coletor)
@@ -80,17 +98,18 @@ namespace Configurador
             string nomeCompletoArquivo2d = caminhoSalvar + codigo + ".SLDDRW";
             int error = 0;
             int warning = 0;
+
             swModel = swApp.ActiveDoc;
             swExt = swModel.Extension;
+
+            //mView = swModel.ActiveView;
+            //mView.EnableGraphicsUpdate = false;
+
+            // Salva e abre o arquivo e ativa para trocar a referencia do coletor.
             int retVal = swModel.SaveAs3(nomeCompletoArquivo2d, 0, 0);
-
-            // Abre o arquivo para trocar a referencia do coletor
             swApp.OpenDoc6(nomeCompletoArquivo2d, (int)swDocumentTypes_e.swDocDRAWING,
-              (int)swOpenDocOptions_e.swOpenDocOptions_LoadModel, "", (int)error, (int)warning);
-
-            swModel = swApp.ActiveDoc;
-            SaveAs3d(coletor);
-            swApp.ActivateDoc(Path.GetFileName(coletor.ArquivoColetorTemplate));
+              (int)swOpenDocOptions_e.swOpenDocOptions_LoadModel, "", error, warning);
+            //swModel = swApp.ActiveDoc;
         }
 
         private void SaveAs3d(Coletor coletor)
@@ -98,17 +117,37 @@ namespace Configurador
             string codigo = coletor.CodigoColetor;
             string caminhoSalvar = @"C:\Users\54808\Documents\1 - Docs Ricardo\Rack padrao\COLETOR SUCCAO\";
             string nomeCompletoArquivo3d = caminhoSalvar + codigo + ".SLDASM";
+
+            // Mostra o 3D
+            swApp.ActivateDoc(Path.GetFileName(coletor.ArquivoTemplateDoColetor));
+
+            // Ativa o 3D
             swModel = swApp.ActiveDoc;
             swExt = swModel.Extension;
-            swApp.ActivateDoc(Path.GetFileName(coletor.ArquivoColetorTemplate));
-            swModel = swApp.ActiveDoc;
             int retVal = swModel.SaveAs3(nomeCompletoArquivo3d, 0, 0);
-
-            Replace(coletor);
         }
 
-        private void Replace(Coletor coletor)
+        private void SaveAsTubo(Coletor coletor)
         {
+            string codigo = coletor.CodigoTuboAcoColetor;
+            string caminhoSalvar = @"C:\Users\54808\Documents\1 - Docs Ricardo\Rack padrao\COLETOR SUCCAO\";
+            string nomeCompletoArquivo3d = caminhoSalvar + codigo + ".SLDPRT";
+
+            // Mostra o 3D
+            swApp.ActivateDoc(coletor.ArquivoTemplateTuboDoColetor);
+
+            // Ativa o 3D
+            swModel = swApp.ActiveDoc;
+            swExt = swModel.Extension;
+            int retVal = swModel.SaveAs3(nomeCompletoArquivo3d, 0, 0);
+
+            AlterarDimensao(coletor);
+        }
+
+        private void ReplaceBolsaRack(Coletor coletor)
+        {
+            swApp.ActivateDoc(coletor.CodigoColetor + ".SLDASM");
+
             swModel = swApp.ActiveDoc;
             AssemblyDoc swAssembly = (AssemblyDoc)swModel;
             Object[] components = swAssembly.GetComponents(true);
@@ -118,15 +157,49 @@ namespace Configurador
                 Component2 component = (Component2)componente;
 
                 swModel = component.GetModelDoc2();
-                string nomeDoComponente = swModel.GetTitle();
 
-                if (String.Equals(nomeDoComponente, "BOLSA SOLDA SUCCAO RACK TEMPLATE.SLDPRT"))
+                string nomeCompletoDoComponente = swModel.GetPathName();
+                string nomeComExtensao = Path.GetFileName(nomeCompletoDoComponente);
+
+                if (String.Equals(nomeComExtensao, "BOLSA SOLDA SUCCAO RACK TEMPLATE.SLDPRT"))
                 {
                     component.Select(true);
+                    break;
                 }
             }
 
-            swAssembly.ReplaceComponents(@"C:\Users\54808\Documents\1 - Docs Ricardo\Rack padrao\COLETOR SUCCAO TEMPLATE\2047899.SLDPRT",
+            swAssembly.ReplaceComponents($@"C:\Users\54808\Documents\1 - Docs Ricardo\Rack padrao\COLETOR SUCCAO TEMPLATE\{coletor.CodigoBolsaSoldaSuccaoRack}.SLDPRT",
+                "", true, true);
+
+            swModel = swApp.ActiveDoc;
+            swModel.Save();
+        }
+
+        private void ReplaceBolsaCP(Coletor coletor)
+        {
+            swApp.ActivateDoc(coletor.CodigoColetor + ".SLDASM");
+            swModel = swApp.ActiveDoc;
+
+            AssemblyDoc swAssembly = (AssemblyDoc)swModel;
+            Object[] components = swAssembly.GetComponents(true);
+
+            foreach (var componente in components)
+            {
+                Component2 component = (Component2)componente;
+
+                swModel = component.GetModelDoc2();
+
+                string nomeCompletoDoComponente = swModel.GetPathName();
+                string nomeComExtensao = Path.GetFileName(nomeCompletoDoComponente);
+
+                if (String.Equals(nomeComExtensao, "BOLSA SOLDA SUCCAO CP TEMPLATE.SLDPRT"))
+                {
+                    component.Select(true);
+                    break;
+                }
+            }
+
+            swAssembly.ReplaceComponents($@"C:\Users\54808\Documents\1 - Docs Ricardo\Rack padrao\COLETOR SUCCAO TEMPLATE\{coletor.CodigoBolsaSoldaSuccaoCompressor}.SLDPRT",
                 "", true, true);
 
             swModel = swApp.ActiveDoc;
@@ -139,11 +212,11 @@ namespace Configurador
             int warnings = 0;
 
             // Abre o assembly do coletor
-            swApp.OpenDoc6(c.ArquivoColetorTemplate, (int)swDocumentTypes_e.swDocASSEMBLY,
+            swApp.OpenDoc6(c.ArquivoTemplateDoColetor, (int)swDocumentTypes_e.swDocASSEMBLY,
                 (int)swOpenDocOptions_e.swOpenDocOptions_LoadModel, "", (int)errors, (int)warnings);
 
             // Converte o path de sldasm para slddrw
-            string path2d = c.ArquivoColetorTemplate.Replace("SLDASM", "SLDDRW");
+            string path2d = c.ArquivoTemplateDoColetor.Replace("SLDASM", "SLDDRW");
 
             // Abre o 2d do coletor
             swApp.OpenDoc6(path2d, (int)swDocumentTypes_e.swDocDRAWING,
@@ -175,10 +248,18 @@ namespace Configurador
             MessageBox.Show(e.ToString());
         }
 
-        private void AlterarDimensao(double dimensao)
+        private void AlterarDimensao(Coletor c)
         {
-            myDimension = swModel.Parameter("comprimento@comprimento@Part1.Part");
-            myDimension.SystemValue = dimensao / 1000; // Converte pra metros.
+            myDimension = swModel.Parameter("D1_RAMAL_RACK@Sketch3");
+            string s1 = c.DiametroEncaixeSuccaoRack.Replace(",",".");
+            string s2 = c.DiametroEncaixeSuccaoCompressor.Replace(",", ".");
+
+            double d1 = Convert.ToDouble(s1.ToString());
+            double d2 = Convert.ToDouble(s2.ToString());
+
+            myDimension.SystemValue = d1 / 1000; // Converte pra metros.
+            myDimension = swModel.Parameter("D1_RAMAL_CP@Sketch4");
+            myDimension.SystemValue = d2 / 1000; // Converte pra metros.
             swModel.EditRebuild3();
         }
 

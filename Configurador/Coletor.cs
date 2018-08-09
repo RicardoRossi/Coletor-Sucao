@@ -14,6 +14,7 @@
         public string DiametroSuccaoCompressor { get; set; }
         public string CodigoBolsaSoldaSuccaoCompressor { get; set; }
         public string DiametroEncaixeSuccaoCompressor { get; set; }
-        public string ArquivoColetorTemplate{ get; set; }
+        public string ArquivoTemplateDoColetor{ get; set; }
+        public string ArquivoTemplateTuboDoColetor { get; set; }
     }
 }
