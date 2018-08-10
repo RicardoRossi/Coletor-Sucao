@@ -6,6 +6,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using LerExcel;
+using System.Globalization;
 
 namespace Configurador
 {
@@ -41,7 +42,6 @@ namespace Configurador
                 return;
             }
 
-           
             var excel = new Read_From_Excel();
 
             // O metodo retorna uma lista de coletores
@@ -64,6 +64,8 @@ namespace Configurador
                 // Salva o 3D e troca referencia no novo 2d
                 SaveAs3d(coletor);
 
+                InserirPropriedade(coletor);
+
                 // Replace ramal do rack
                 ReplaceBolsaRack(coletor);
 
@@ -81,8 +83,9 @@ namespace Configurador
                 swModel.Save3((int)swSaveAsOptions_e.swSaveAsOptions_SaveReferenced + (int)swSaveAsOptions_e.swSaveAsOptions_Silent,
                     ref error, ref warnings);
 
-                swApp.CloseAllDocuments(true);
+                swModel.SaveAs(Path.ChangeExtension(swModel.GetPathName(),".PDF"));
 
+                swApp.CloseAllDocuments(true);
             }
 
             //Replace(swModel);
@@ -223,8 +226,6 @@ namespace Configurador
                (int)swOpenDocOptions_e.swOpenDocOptions_LoadModel, "", (int)errors, (int)warnings);
         }
 
-
-
         private void Replace(ModelDoc2 swModel)
         {
             swAssembly = (AssemblyDoc)swModel;
@@ -251,11 +252,11 @@ namespace Configurador
         private void AlterarDimensao(Coletor c)
         {
             myDimension = swModel.Parameter("D1_RAMAL_RACK@Sketch3");
-            string s1 = c.DiametroEncaixeSuccaoRack.Replace(",",".");
+            string s1 = c.DiametroEncaixeSuccaoRack.Replace(",", ".");
             string s2 = c.DiametroEncaixeSuccaoCompressor.Replace(",", ".");
 
-            double d1 = Convert.ToDouble(s1.ToString());
-            double d2 = Convert.ToDouble(s2.ToString());
+            double d1 = Double.Parse(s1, CultureInfo.InvariantCulture);
+            double d2 = Double.Parse(s2, CultureInfo.InvariantCulture);
 
             myDimension.SystemValue = d1 / 1000; // Converte pra metros.
             myDimension = swModel.Parameter("D1_RAMAL_CP@Sketch4");
@@ -263,11 +264,50 @@ namespace Configurador
             swModel.EditRebuild3();
         }
 
-        private void InserirPropriedade()
+        private void InserirPropriedade(Coletor c)
         {
+            string descricao = "";
+
+            descricao += "COL S ";
+            descricao += c.DiametroTuboAcoColetor + "\" ";
+            descricao += c.QuantidadeCompressor + "CP ";
+            descricao += c.DiametroSuccaoCompressor + "\" X ";
+            descricao += c.DiametroSuccaoRack + "\" ";
+
+            swModel = swApp.ActiveDoc;
+            ConfigurationManager configMgr;
+            configMgr = swModel.ConfigurationManager;
+            Configuration config = configMgr.ActiveConfiguration;
+            string nomeConfig = config.Name;
             swExt = swModel.Extension;
+
+            // Deleta prop da custom
             swCustomMgr = swExt.CustomPropertyManager[""];
-            swCustomMgr.Add3("Descrição", (int)swCustomInfoType_e.swCustomInfoText, "Grade ventilador ZA",
+            string[] nomesProp = null;
+            nomesProp = (string[])swCustomMgr.GetNames();
+            
+            foreach (var nome in nomesProp)
+            {
+                swCustomMgr.Delete(nome);
+            }
+
+            // Deleta prop da personalizada
+            swCustomMgr = swExt.CustomPropertyManager[nomeConfig];
+            nomesProp = null;
+            nomesProp = (string[])swCustomMgr.GetNames();
+
+            foreach (var nome in nomesProp)
+            {
+                swCustomMgr.Delete(nome);
+            }
+
+            swCustomMgr.Add3("DESCRIÇÃO", (int)swCustomInfoType_e.swCustomInfoText, descricao,
+                (int)swCustomPropertyAddOption_e.swCustomPropertyReplaceValue);
+            swCustomMgr.Add3("PROJETISTA", (int)swCustomInfoType_e.swCustomInfoText, "RICARDO R.",
+                (int)swCustomPropertyAddOption_e.swCustomPropertyReplaceValue);
+            swCustomMgr.Add3("PROJETISTA2D", (int)swCustomInfoType_e.swCustomInfoText, "RICARDO R.",
+                (int)swCustomPropertyAddOption_e.swCustomPropertyReplaceValue);
+            swCustomMgr.Add3("GRUPO ITEM", (int)swCustomInfoType_e.swCustomInfoText, "494",
                 (int)swCustomPropertyAddOption_e.swCustomPropertyReplaceValue);
         }
 
