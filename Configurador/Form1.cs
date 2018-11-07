@@ -84,7 +84,7 @@ namespace Configurador
                     ref error, ref warnings);
 
                 swModel.SaveAs(Path.ChangeExtension(swModel.GetPathName(),".PDF"));
-
+                
                 swApp.CloseAllDocuments(true);
             }
 
@@ -97,7 +97,7 @@ namespace Configurador
         private void SaveAs2d(Coletor coletor)
         {
             string codigo = coletor.CodigoColetor;
-            string caminhoSalvar = @"C:\Users\54808\Documents\1 - Docs Ricardo\Rack padrao\COLETOR SUCCAO\";
+            string caminhoSalvar = @"C:\ELETROFRIO\ENGENHARIA SMR\PRODUTOS FINAIS ELETROFRIO\MECÂNICA\RACK PADRAO\COLETOR SUCCAO\";
             string nomeCompletoArquivo2d = caminhoSalvar + codigo + ".SLDDRW";
             int error = 0;
             int warning = 0;
@@ -118,7 +118,7 @@ namespace Configurador
         private void SaveAs3d(Coletor coletor)
         {
             string codigo = coletor.CodigoColetor;
-            string caminhoSalvar = @"C:\Users\54808\Documents\1 - Docs Ricardo\Rack padrao\COLETOR SUCCAO\";
+            string caminhoSalvar = @"C:\ELETROFRIO\ENGENHARIA SMR\PRODUTOS FINAIS ELETROFRIO\MECÂNICA\RACK PADRAO\COLETOR SUCCAO\";
             string nomeCompletoArquivo3d = caminhoSalvar + codigo + ".SLDASM";
 
             // Mostra o 3D
@@ -133,7 +133,7 @@ namespace Configurador
         private void SaveAsTubo(Coletor coletor)
         {
             string codigo = coletor.CodigoTuboAcoColetor;
-            string caminhoSalvar = @"C:\Users\54808\Documents\1 - Docs Ricardo\Rack padrao\COLETOR SUCCAO\";
+            string caminhoSalvar = @"C:\ELETROFRIO\ENGENHARIA SMR\PRODUTOS FINAIS ELETROFRIO\MECÂNICA\RACK PADRAO\COLETOR SUCCAO\";
             string nomeCompletoArquivo3d = caminhoSalvar + codigo + ".SLDPRT";
 
             // Mostra o 3D
@@ -171,7 +171,7 @@ namespace Configurador
                 }
             }
 
-            swAssembly.ReplaceComponents($@"C:\Users\54808\Documents\1 - Docs Ricardo\Rack padrao\COLETOR SUCCAO TEMPLATE\{coletor.CodigoBolsaSoldaSuccaoRack}.SLDPRT",
+            swAssembly.ReplaceComponents($@"C:\ELETROFRIO\ENGENHARIA SMR\PRODUTOS FINAIS ELETROFRIO\MECÂNICA\RACK PADRAO\COLETOR SUCCAO\{coletor.CodigoBolsaSoldaSuccaoRack}.SLDPRT",
                 "", true, true);
 
             swModel = swApp.ActiveDoc;
@@ -202,7 +202,7 @@ namespace Configurador
                 }
             }
 
-            swAssembly.ReplaceComponents($@"C:\Users\54808\Documents\1 - Docs Ricardo\Rack padrao\COLETOR SUCCAO TEMPLATE\{coletor.CodigoBolsaSoldaSuccaoCompressor}.SLDPRT",
+            swAssembly.ReplaceComponents($@"C:\ELETROFRIO\ENGENHARIA SMR\PRODUTOS FINAIS ELETROFRIO\MECÂNICA\RACK PADRAO\COLETOR SUCCAO\{coletor.CodigoBolsaSoldaSuccaoCompressor}.SLDPRT",
                 "", true, true);
 
             swModel = swApp.ActiveDoc;
@@ -230,7 +230,7 @@ namespace Configurador
         {
             swAssembly = (AssemblyDoc)swModel;
 
-            swAssembly.ReplaceComponents(@"C:\ELETROFRIO\ENGENHARIA SMR\PRODUTOS FINAIS ELETROFRIO\MECÂNICA\RACK PADRAO\CONEXOES\2047907.SLDPRT",
+            swAssembly.ReplaceComponents(@"C:\ELETROFRIO\ENGENHARIA SMR\PRODUTOS FINAIS ELETROFRIO\MECÂNICA\RACK PADRAO\COLETOR SUCCAO\2047907.SLDPRT",
             "", true, true);
         }
 
@@ -240,7 +240,7 @@ namespace Configurador
             int Error = 0;
             int Warnings = 0;
             bool bRet;
-            bRet = swExt.SaveAs($@"C:\Users\54808\Documents\{nome}.PDF", (int)swSaveAsVersion_e.swSaveAsCurrentVersion,
+            bRet = swExt.SaveAs($@"C:\ELETROFRIO\ENGENHARIA SMR\PRODUTOS FINAIS ELETROFRIO\MECÂNICA\RACK PADRAO\COLETOR SUCCAO\{nome}.PDF", (int)swSaveAsVersion_e.swSaveAsCurrentVersion,
                 (int)swSaveAsOptions_e.swSaveAsOptions_Silent, null, ref Error, ref Warnings);
 
             // Converte um enum do tipo int para a string do enum deixando mais claro o erro
@@ -309,6 +309,8 @@ namespace Configurador
                 (int)swCustomPropertyAddOption_e.swCustomPropertyReplaceValue);
             swCustomMgr.Add3("GRUPO ITEM", (int)swCustomInfoType_e.swCustomInfoText, "494",
                 (int)swCustomPropertyAddOption_e.swCustomPropertyReplaceValue);
+            swCustomMgr.Add3("REVISÃO", (int)swCustomInfoType_e.swCustomInfoText, "01",
+               (int)swCustomPropertyAddOption_e.swCustomPropertyReplaceValue);
         }
 
         private void LerArquivo()
